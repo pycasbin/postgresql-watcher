@@ -1,0 +1,3 @@
+django
+casbin
+psycopg2-binary
