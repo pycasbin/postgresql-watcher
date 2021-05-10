@@ -9,7 +9,6 @@ USER = "postgres"
 PASSWORD = "123456"
 
 
-
 def get_watcher():
     pg_watcher = PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD)
     return pg_watcher
