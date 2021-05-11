@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ 3.5, 3.6, 3.7, 3.8, 3.9 ]
-        os: [ ubuntu-latest, macOS-latest ]
+        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
+        os: [ ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
       - name: Checkout
@@ -24,11 +24,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Setup PostgreSQL
-        uses: Harmon758/postgresql-action@v1.0.0
-        with:
-          postgresql db: postgres
-          postgresql user: postgres
-          postgresql password: 123456
+        run: docker run --name postgres -e POSTGRES_PASSWORD=123456 -p 5432:5432 -d postgres
 
       - name: Install dependencies
         run: |
@@ -56,11 +52,7 @@ jobs:
           pip install -r dev_requirements.txt
 
       - name: Setup PostgreSQL
-        uses: Harmon758/postgresql-action@v1.0.0
-        with:
-          postgresql db: postgres
-          postgresql user: postgres
-          postgresql password: 123456
+        run: docker run --name postgres -e POSTGRES_PASSWORD=123456 -p 5432:5432 -d postgres
 
       - name: Run tests
         run: coverage run -m unittest discover -s tests -t tests
