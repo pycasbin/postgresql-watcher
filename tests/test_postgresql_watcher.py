@@ -9,7 +9,7 @@ from multiprocessing import connection, context
 HOST = "127.0.0.1"
 PORT = 5432
 USER = "postgres"
-PASSWORD = "pw"
+PASSWORD = "123456"
 
 
 def get_watcher():
