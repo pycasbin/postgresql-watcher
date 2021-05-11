@@ -1,6 +1,7 @@
 import unittest
 from postgresql_watcher import PostgresqlWatcher
 from multiprocessing import connection, context
+from multiprocessing.connection import PipeConnection
 
 # Warning!!! , Please setup yourself config
 HOST = "127.0.0.1"
@@ -10,8 +11,7 @@ PASSWORD = "123456"
 
 
 def get_watcher():
-    pg_watcher = PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD)
-    return pg_watcher
+    return PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD)
 
 
 pg_watcher = get_watcher()

@@ -8,7 +8,7 @@ POSTGRESQL_CHANNEL_NAME = "casbin_role_watcher"
 
 
 def casbin_subscription(
-    process_conn: connection.PipeConnection,
+    process_conn: Pipe,
     host: str,
     user: str,
     password: str,
@@ -45,12 +45,14 @@ class PostgresqlWatcher(object):
         channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
         start_process: Optional[bool] = True,
     ):
+        self.update_callback = None
+        self.parent_conn: Pipe = None
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.channel_name = channel_name
-        self.subscribed_process, self.parent_conn = self.create_subscriber_process(
+        self.subscribed_process = self.create_subscriber_process(
             start_process
         )
 
@@ -60,6 +62,8 @@ class PostgresqlWatcher(object):
         delay: Optional[int] = 2,
     ):
         parent_conn, child_conn = Pipe()
+        if not self.parent_conn:
+            self.parent_conn = parent_conn
         p = Process(
             target=casbin_subscription,
             args=(
@@ -76,12 +80,9 @@ class PostgresqlWatcher(object):
         if start_process:
             p.start()
         self.should_reload()
-        return p, parent_conn
+        return p
 
-    def update_callback(self):
-        print("callback called because casbin role updated")
-
-    def set_update_callback(self, fn_name: Any):
+    def set_update_callback(self, fn_name: Callable):
         print("runtime is set update callback",fn_name)
         self.update_callback = fn_name
 
