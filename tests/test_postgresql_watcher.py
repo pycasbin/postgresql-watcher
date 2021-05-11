@@ -1,4 +1,6 @@
 import unittest
+from multiprocessing.connection import Pipe
+
 from postgresql_watcher import PostgresqlWatcher
 from multiprocessing import connection, context
 
@@ -18,7 +20,7 @@ pg_watcher = get_watcher()
 
 class TestConfig(unittest.TestCase):
     def test_pg_watcher_init(self):
-        assert isinstance(pg_watcher.parent_conn, connection.PipeConnection)
+        assert isinstance(pg_watcher.parent_conn, Pipe)
         assert isinstance(pg_watcher.subscribed_process, context.Process)
 
     def test_update_pg_watcher(self):
