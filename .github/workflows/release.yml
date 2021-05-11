@@ -23,18 +23,32 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install docker
+      - name: Set up PostgreSQL on Linux
+        if: startsWith(runner.os, 'linux')
+        run: |
+          sudo systemctl start postgresql.service
+          pg_isready
+          sudo -u postgres psql --command="ALTER USER postgres WITH PASSWORD '123456'" --command="\du"
+
+      - name: Setup PostgreSQL on macOS
         if: startsWith(runner.os, 'macos')
         run: |
-          mkdir -p ~/.docker/machine/cache
-          curl -Lo ~/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v19.03.12/boot2docker.iso
-          brew install docker docker-machine
-          docker-machine create --driver virtualbox default
-          docker-machine env default
-
-      - name: Setup PostgreSQL
-        if: startsWith(runner.os, 'macos') || startsWith(runner.os, 'linux')
-        run: docker run --name postgres -e POSTGRES_PASSWORD=123456 -p 5432:5432 -d postgres
+          brew services start postgresql
+          echo "Check PostgreSQL service is running"
+          i=10
+          COMMAND='pg_isready'
+          while [ $i -gt 0 ]; do
+              echo "Check PostgreSQL service status"
+              eval $COMMAND && break
+              ((i--))
+              if [ $i == 0 ]; then
+                  echo "PostgreSQL service not ready, all attempts exhausted"
+                  exit 1
+              fi
+              echo "PostgreSQL service not ready, wait 10 more sec, attempts left: $i"
+              sleep 10
+          done
+          psql --command="CREATE USER postgres PASSWORD '123456'" --command="\du" postgres
 
       - name: Start PostgreSQL on Windows
         if: startsWith(runner.os, 'windows')
@@ -42,7 +56,7 @@ jobs:
           $pgService = Get-Service -Name postgresql*
           Set-Service -InputObject $pgService -Status running -StartupType automatic
           Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
-          & $env:PGBIN\psql --command="ALTER USER postgres WITH PASSWORD '123456';" --command="\du"
+          & $env:PGBIN\psql --command="ALTER USER postgres WITH PASSWORD '123456'" --command="\du"
 
       - name: Install dependencies
         run: |
