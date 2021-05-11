@@ -85,8 +85,12 @@ jobs:
           pip install coveralls
           pip install coverage
 
-      - name: Setup PostgreSQL
-        run: docker run --name postgres -e POSTGRES_PASSWORD=123456 -p 5432:5432 -d postgres
+      - name: Set up PostgreSQL on Linux
+        if: startsWith(runner.os, 'linux')
+        run: |
+          sudo systemctl start postgresql.service
+          pg_isready
+          sudo -u postgres psql --command="ALTER USER postgres WITH PASSWORD '123456'" --command="\du"
 
       - name: Run tests
         run: coverage run -m unittest discover -s tests -t tests
