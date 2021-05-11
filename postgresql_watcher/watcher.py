@@ -45,7 +45,7 @@ class PostgresqlWatcher(object):
             start_process: Optional[bool] = True,
     ):
         self.update_callback = None
-        self.parent_conn: Pipe = None
+        self.parent_conn = None
         self.host = host
         self.port = port
         self.user = user
