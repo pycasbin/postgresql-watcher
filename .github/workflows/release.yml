@@ -42,6 +42,7 @@ jobs:
           $pgService = Get-Service -Name postgresql*
           Set-Service -InputObject $pgService -Status running -StartupType automatic
           Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
+          & $env:PGBIN\psql --command="ALTER USER postgres WITH PASSWORD '123456';" --command="\du"
 
       - name: Install dependencies
         run: |
