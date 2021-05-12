@@ -8,13 +8,13 @@ POSTGRESQL_CHANNEL_NAME = "casbin_role_watcher"
 
 
 def casbin_subscription(
-        process_conn: Pipe,
-        host: str,
-        user: str,
-        password: str,
-        port: Optional[int] = 5432,
-        delay: Optional[int] = 2,
-        channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
+    process_conn: Pipe,
+    host: str,
+    user: str,
+    password: str,
+    port: Optional[int] = 5432,
+    delay: Optional[int] = 2,
+    channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
 ):
     # delay connecting to postgresql (postgresql connection failure)
     time.sleep(delay)
@@ -36,13 +36,13 @@ def casbin_subscription(
 
 class PostgresqlWatcher(object):
     def __init__(
-            self,
-            host: str,
-            user: str,
-            password: str,
-            port: Optional[int] = 5432,
-            channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
-            start_process: Optional[bool] = True,
+        self,
+        host: str,
+        user: str,
+        password: str,
+        port: Optional[int] = 5432,
+        channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
+        start_process: Optional[bool] = True,
     ):
         self.update_callback = None
         self.parent_conn = None
@@ -51,14 +51,12 @@ class PostgresqlWatcher(object):
         self.user = user
         self.password = password
         self.channel_name = channel_name
-        self.subscribed_process = self.create_subscriber_process(
-            start_process
-        )
+        self.subscribed_process = self.create_subscriber_process(start_process)
 
     def create_subscriber_process(
-            self,
-            start_process: Optional[bool] = True,
-            delay: Optional[int] = 2,
+        self,
+        start_process: Optional[bool] = True,
+        delay: Optional[int] = 2,
     ):
         parent_conn, child_conn = Pipe()
         if not self.parent_conn:
