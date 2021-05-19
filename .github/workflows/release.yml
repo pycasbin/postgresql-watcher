@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ 3.5, 3.6, 3.7, 3.8, 3.9 ]
-        os: [ ubuntu-latest, macOS-latest ]
+        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
+        os: [ ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
       - name: Checkout
@@ -23,12 +23,40 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Setup PostgreSQL
-        uses: Harmon758/postgresql-action@v1.0.0
-        with:
-          postgresql db: postgres
-          postgresql user: postgres
-          postgresql password: 123456
+      - name: Set up PostgreSQL on Linux
+        if: startsWith(runner.os, 'linux')
+        run: |
+          sudo systemctl start postgresql.service
+          pg_isready
+          sudo -u postgres psql --command="ALTER USER postgres WITH PASSWORD '123456'" --command="\du"
+
+      - name: Setup PostgreSQL on macOS
+        if: startsWith(runner.os, 'macos')
+        run: |
+          brew services start postgresql
+          echo "Check PostgreSQL service is running"
+          i=10
+          COMMAND='pg_isready'
+          while [ $i -gt 0 ]; do
+              echo "Check PostgreSQL service status"
+              eval $COMMAND && break
+              ((i--))
+              if [ $i == 0 ]; then
+                  echo "PostgreSQL service not ready, all attempts exhausted"
+                  exit 1
+              fi
+              echo "PostgreSQL service not ready, wait 10 more sec, attempts left: $i"
+              sleep 10
+          done
+          psql --command="CREATE USER postgres PASSWORD '123456'" --command="\du" postgres
+
+      - name: Start PostgreSQL on Windows
+        if: startsWith(runner.os, 'windows')
+        run: |
+          $pgService = Get-Service -Name postgresql*
+          Set-Service -InputObject $pgService -Status running -StartupType automatic
+          Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
+          & $env:PGBIN\psql --command="ALTER USER postgres WITH PASSWORD '123456'" --command="\du"
 
       - name: Install dependencies
         run: |
@@ -54,13 +82,15 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install -r dev_requirements.txt
+          pip install coveralls
+          pip install coverage
 
-      - name: Setup PostgreSQL
-        uses: Harmon758/postgresql-action@v1.0.0
-        with:
-          postgresql db: postgres
-          postgresql user: postgres
-          postgresql password: 123456
+      - name: Set up PostgreSQL on Linux
+        if: startsWith(runner.os, 'linux')
+        run: |
+          sudo systemctl start postgresql.service
+          pg_isready
+          sudo -u postgres psql --command="ALTER USER postgres WITH PASSWORD '123456'" --command="\du"
 
       - name: Run tests
         run: coverage run -m unittest discover -s tests -t tests

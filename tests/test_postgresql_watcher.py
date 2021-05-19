@@ -1,4 +1,7 @@
+import sys
 import unittest
+from multiprocessing.connection import Pipe
+
 from postgresql_watcher import PostgresqlWatcher
 from multiprocessing import connection, context
 
@@ -10,16 +13,26 @@ PASSWORD = "123456"
 
 
 def get_watcher():
-    pg_watcher = PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD)
-    return pg_watcher
+    return PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD)
 
 
 pg_watcher = get_watcher()
 
+try:
+    import _winapi
+    from _winapi import WAIT_OBJECT_0, WAIT_ABANDONED_0, WAIT_TIMEOUT, INFINITE
+except ImportError:
+    if sys.platform == 'win32':
+        raise
+    _winapi = None
+
 
 class TestConfig(unittest.TestCase):
     def test_pg_watcher_init(self):
-        assert isinstance(pg_watcher.parent_conn, connection.PipeConnection)
+        if _winapi:
+            assert isinstance(pg_watcher.parent_conn, connection.PipeConnection)
+        else:
+            assert isinstance(pg_watcher.parent_conn, connection.Connection)
         assert isinstance(pg_watcher.subscribed_process, context.Process)
 
     def test_update_pg_watcher(self):
