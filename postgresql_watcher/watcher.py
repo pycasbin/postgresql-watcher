@@ -31,7 +31,7 @@ def casbin_subscription(
             while conn.notifies:
                 notify = conn.notifies.pop(0)
                 print(f"Notify: {notify.payload}")
-                process_conn.put(notify.payload)
+                process_conn.send(notify.payload)
 
 
 class PostgresqlWatcher(object):
