@@ -4,7 +4,6 @@ from setuptools import setup, find_packages, __version__
 with open("README.md", "r") as readme_file:
     readme = readme_file.read()
 
-requirements = ["casbin==0.8.4", "psycopg2-binary==2.8.6", "black==20.8b1"]
 
 setup(
     name="casbin-postgresql-watcher",
@@ -15,9 +14,18 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/pycasbin/postgresql-watcher",
     packages=find_packages(),
-    install_requires=requirements,
+    install_requires=open('requirements.txt').read().splitlines(),
+    extras_require={
+        'dev': [
+            open('dev_requirements.txt').read().splitlines(),
+        ]
+    },
     classifiers=[
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: Apache Software License",
     ],
 )

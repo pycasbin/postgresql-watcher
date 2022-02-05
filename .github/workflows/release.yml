@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
+        python-version: [ "3.6", "3.7", "3.8", "3.9", "3.10" ]
         os: [ ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
@@ -57,6 +57,9 @@ jobs:
           Set-Service -InputObject $pgService -Status running -StartupType automatic
           Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
           & $env:PGBIN\psql --command="ALTER USER postgres WITH PASSWORD '123456'" --command="\du"
+
+      - name: Upgrade install tools
+        run: python -m pip install --upgrade setuptools wheel
 
       - name: Install dependencies
         run: |
@@ -112,6 +115,8 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v1
+        with:
+          node-version: '16'
 
       - name: Setup
         run: npm install -g semantic-release @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/git @semantic-release/release-notes-generator semantic-release-pypi
