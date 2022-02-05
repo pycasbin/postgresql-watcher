@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+# [0.1.0](https://github.com/pycasbin/postgresql-watcher/compare/v0.0.3...v0.1.0) (2022-02-05)
+
+
+### Features
+
+* add database name parameter to watcher. ([dd6bed9](https://github.com/pycasbin/postgresql-watcher/commit/dd6bed9fa1326e82980832bdf05a58340c0c06d4))
+
 ## [0.0.3](https://github.com/pycasbin/postgresql-watcher/compare/v0.0.2...v0.0.3) (2022-02-05)
 
 
