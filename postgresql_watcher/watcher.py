@@ -1,8 +1,9 @@
-from typing import Optional, Callable, Any
+from typing import Optional, Callable
 from psycopg2 import connect, extensions
-from multiprocessing import Process, Pipe, connection
+from multiprocessing import Process, Pipe
 import time
 from select import select
+
 
 POSTGRESQL_CHANNEL_NAME = "casbin_role_watcher"
 
@@ -13,12 +14,19 @@ def casbin_subscription(
     user: str,
     password: str,
     port: Optional[int] = 5432,
+    dbname: Optional[str] = "postgres",
     delay: Optional[int] = 2,
     channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
 ):
     # delay connecting to postgresql (postgresql connection failure)
     time.sleep(delay)
-    conn = connect(host=host, port=port, user=user, password=password)
+    conn = connect(
+        host=host,
+        port=port,
+        user=user,
+        password=password,
+        dbname=dbname
+    )
     # Can only receive notifications when not in transaction, set this for easier usage
     conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
     curs = conn.cursor()
@@ -41,6 +49,7 @@ class PostgresqlWatcher(object):
         user: str,
         password: str,
         port: Optional[int] = 5432,
+        dbname: Optional[str] = "postgres",
         channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
         start_process: Optional[bool] = True,
     ):
@@ -50,6 +59,7 @@ class PostgresqlWatcher(object):
         self.port = port
         self.user = user
         self.password = password
+        self.dbname = dbname
         self.channel_name = channel_name
         self.subscribed_process = self.create_subscriber_process(start_process)
 
@@ -69,6 +79,7 @@ class PostgresqlWatcher(object):
                 self.user,
                 self.password,
                 self.port,
+                self.dbname,
                 delay,
                 self.channel_name,
             ),
@@ -89,6 +100,7 @@ class PostgresqlWatcher(object):
             port=self.port,
             user=self.user,
             password=self.password,
+            dbname=self.dbname,
         )
         # Can only receive notifications when not in transaction, set this for easier usage
         conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
