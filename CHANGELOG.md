@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+## [0.1.1](https://github.com/pycasbin/postgresql-watcher/compare/v0.1.0...v0.1.1) (2022-02-07)
+
+
+### Bug Fixes
+
+* update readme with new parameter and correct callback setter ([7c19709](https://github.com/pycasbin/postgresql-watcher/commit/7c19709967aef5f9efc32b84f46f02b017533e32))
+
 # [0.1.0](https://github.com/pycasbin/postgresql-watcher/compare/v0.0.3...v0.1.0) (2022-02-05)
 
 
