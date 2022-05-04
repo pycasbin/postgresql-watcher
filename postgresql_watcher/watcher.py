@@ -87,7 +87,6 @@ class PostgresqlWatcher(object):
         )
         if start_process:
             p.start()
-        self.should_reload()
         return p
 
     def set_update_callback(self, fn_name: Callable):
@@ -113,7 +112,7 @@ class PostgresqlWatcher(object):
 
     def should_reload(self):
         try:
-            if self.parent_conn.poll():
+            if self.parent_conn.poll(None):
                 message = self.parent_conn.recv()
                 print(f"message:{message}")
                 return True
