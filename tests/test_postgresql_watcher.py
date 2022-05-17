@@ -39,9 +39,6 @@ class TestConfig(unittest.TestCase):
     def test_update_pg_watcher(self):
         assert pg_watcher.update() is True
 
-    def test_not_reload(self):
-        assert not pg_watcher.should_reload()
-
     def test_default_update_callback(self):
         assert pg_watcher.update_callback() is None
 
