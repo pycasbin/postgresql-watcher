@@ -73,10 +73,10 @@ class PostgresqlWatcher(object):
         self.password = password
         self.dbname = dbname
         self.channel_name = channel_name
-        self.sslmode = sslmode,
-        self.sslrootcert = sslrootcert,
-        self.sslcert = sslcert,
-        self.sslkey = sslkey,
+        self.sslmode = sslmode
+        self.sslrootcert = sslrootcert
+        self.sslcert = sslcert
+        self.sslkey = sslkey
         self.subscribed_process = self.create_subscriber_process(start_process)
         print(f"STUTEST set {self.sslmode} from {sslmode}", flush=True)
 
