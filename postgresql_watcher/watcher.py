@@ -17,6 +17,10 @@ def casbin_subscription(
     dbname: Optional[str] = "postgres",
     delay: Optional[int] = 2,
     channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
+    sslmode: Optional[str] = None,
+    sslrootcert: Optional[str] = None,
+    sslcert: Optional[str] = None,
+    sslkey: Optional[str] = None
 ):
     # delay connecting to postgresql (postgresql connection failure)
     time.sleep(delay)
@@ -25,7 +29,11 @@ def casbin_subscription(
         port=port,
         user=user,
         password=password,
-        dbname=dbname
+        dbname=dbname,
+        sslmode=sslmode,
+        sslrootcert=sslrootcert,
+        sslcert=sslcert,
+        sslkey=sslkey
     )
     # Can only receive notifications when not in transaction, set this for easier usage
     conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -52,6 +60,10 @@ class PostgresqlWatcher(object):
         dbname: Optional[str] = "postgres",
         channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
         start_process: Optional[bool] = True,
+        sslmode: Optional[str] = None,
+        sslrootcert: Optional[str] = None,
+        sslcert: Optional[str] = None,
+        sslkey: Optional[str] = None
     ):
         self.update_callback = None
         self.parent_conn = None
@@ -62,6 +74,10 @@ class PostgresqlWatcher(object):
         self.dbname = dbname
         self.channel_name = channel_name
         self.subscribed_process = self.create_subscriber_process(start_process)
+        self.sslmode = sslmode,
+        self.sslrootcert = sslrootcert,
+        self.sslcert = sslcert,
+        self.sslkey = sslkey
 
     def create_subscriber_process(
         self,
@@ -82,6 +98,10 @@ class PostgresqlWatcher(object):
                 self.dbname,
                 delay,
                 self.channel_name,
+                self.sslmode,
+                self.sslrootcert,
+                self.sslcert,
+                self.sslkey
             ),
             daemon=True,
         )
@@ -100,6 +120,10 @@ class PostgresqlWatcher(object):
             user=self.user,
             password=self.password,
             dbname=self.dbname,
+            sslmode=self.sslmode,
+            sslrootcert=self.sslrootcert,
+            sslcert=self.sslcert,
+            sslkey=self.sslkey
         )
         # Can only receive notifications when not in transaction, set this for easier usage
         conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
