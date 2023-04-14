@@ -26,3 +26,20 @@ watcher = PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD, 
 watcher.set_update_callback(casbin_enforcer.e.load_policy)
 casbin_enforcer.set_watcher(watcher)
 ```
+
+## Basic Usage Example With SSL Enabled
+
+See [PostgresQL documentation](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS) for full details of SSL parameters.
+
+### With Flask-authz
+```python
+from flask_authz import CasbinEnforcer
+from postgresql_watcher import PostgresqlWatcher
+from flask import Flask
+from casbin.persist.adapters import FileAdapter
+
+casbin_enforcer = CasbinEnforcer(app, adapter)
+watcher = PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD, dbname=DBNAME, sslmode="verify_full", sslcert=SSLCERT, sslrootcert=SSLROOTCERT, sslkey=SSLKEY)
+watcher.set_update_callback(casbin_enforcer.e.load_policy)
+casbin_enforcer.set_watcher(watcher)
+```
