@@ -1,5 +1,17 @@
 # Semantic Versioning Changelog
 
+# [0.2.0](https://github.com/pycasbin/postgresql-watcher/compare/v0.1.2...v0.2.0) (2023-04-14)
+
+
+### Bug Fixes
+
+* fix CI's python version and requirements.txt ([dde80ac](https://github.com/pycasbin/postgresql-watcher/commit/dde80ac36fe5d9f5d71b342a33a692c6ad149b87))
+
+
+### Features
+
+* add SSL options ([#22](https://github.com/pycasbin/postgresql-watcher/issues/22)) ([a1a8f4c](https://github.com/pycasbin/postgresql-watcher/commit/a1a8f4c3d6fa4eb6d874556ffcac5fb26271f86e))
+
 ## [0.1.2](https://github.com/pycasbin/postgresql-watcher/compare/v0.1.1...v0.1.2) (2022-05-17)
 
 
