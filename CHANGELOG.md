@@ -1,5 +1,17 @@
 # Semantic Versioning Changelog
 
+# [1.0.0](https://github.com/pycasbin/postgresql-watcher/compare/v0.3.0...v1.0.0) (2024-03-29)
+
+
+### Features
+
+* improve docs ([db23465](https://github.com/pycasbin/postgresql-watcher/commit/db23465064fdcce16a01fa6936e5417a4fc721e1))
+
+
+### BREAKING CHANGES
+
+* trigger major release
+
 # [0.3.0](https://github.com/pycasbin/postgresql-watcher/compare/v0.2.0...v0.3.0) (2024-03-29)
 
 
