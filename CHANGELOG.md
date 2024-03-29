@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+# [0.3.0](https://github.com/pycasbin/postgresql-watcher/compare/v0.2.0...v0.3.0) (2024-03-29)
+
+
+### Features
+
+* upgrade CI Node.js version to 20 ([8c31f0d](https://github.com/pycasbin/postgresql-watcher/commit/8c31f0df9f95cbc00c955c83c56f12934af30ff8))
+
 # [0.2.0](https://github.com/pycasbin/postgresql-watcher/compare/v0.1.2...v0.2.0) (2023-04-14)
 
 
