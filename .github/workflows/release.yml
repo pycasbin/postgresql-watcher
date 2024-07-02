@@ -33,7 +33,7 @@ jobs:
       - name: Setup PostgreSQL on macOS
         if: startsWith(runner.os, 'macos')
         run: |
-          brew services start postgresql
+          brew services start postgresql@14
           echo "Check PostgreSQL service is running"
           i=10
           COMMAND='pg_isready'
