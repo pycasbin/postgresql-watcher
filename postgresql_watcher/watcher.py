@@ -3,6 +3,7 @@ from psycopg2 import connect, extensions
 from multiprocessing import Process, Pipe
 import time
 from select import select
+from logging import Logger, getLogger
 
 
 POSTGRESQL_CHANNEL_NAME = "casbin_role_watcher"
@@ -10,6 +11,7 @@ POSTGRESQL_CHANNEL_NAME = "casbin_role_watcher"
 
 def casbin_subscription(
     process_conn: Pipe,
+    logger: Logger,
     host: str,
     user: str,
     password: str,
@@ -20,7 +22,7 @@ def casbin_subscription(
     sslmode: Optional[str] = None,
     sslrootcert: Optional[str] = None,
     sslcert: Optional[str] = None,
-    sslkey: Optional[str] = None
+    sslkey: Optional[str] = None,
 ):
     # delay connecting to postgresql (postgresql connection failure)
     time.sleep(delay)
@@ -39,14 +41,14 @@ def casbin_subscription(
     conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
     curs = conn.cursor()
     curs.execute(f"LISTEN {channel_name};")
-    print("Waiting for casbin policy update")
+    logger.debug("Waiting for casbin policy update")
     while True and not curs.closed:
         if not select([conn], [], [], 5) == ([], [], []):
-            print("Casbin policy update identified..")
+            logger.debug("Casbin policy update identified..")
             conn.poll()
             while conn.notifies:
                 notify = conn.notifies.pop(0)
-                print(f"Notify: {notify.payload}")
+                logger.debug(f"Notify: {notify.payload}")
                 process_conn.send(notify.payload)
 
 
@@ -63,7 +65,8 @@ class PostgresqlWatcher(object):
         sslmode: Optional[str] = None,
         sslrootcert: Optional[str] = None,
         sslcert: Optional[str] = None,
-        sslkey: Optional[str] = None
+        sslkey: Optional[str] = None,
+        logger: Optional[Logger] = None,
     ):
         self.update_callback = None
         self.parent_conn = None
@@ -77,6 +80,9 @@ class PostgresqlWatcher(object):
         self.sslrootcert = sslrootcert
         self.sslcert = sslcert
         self.sslkey = sslkey
+        if logger is None:
+            logger = getLogger()
+        self.logger = logger
         self.subscribed_process = self.create_subscriber_process(start_process)
 
     def create_subscriber_process(
@@ -91,6 +97,7 @@ class PostgresqlWatcher(object):
             target=casbin_subscription,
             args=(
                 child_conn,
+                self.logger,
                 self.host,
                 self.user,
                 self.password,
@@ -101,7 +108,7 @@ class PostgresqlWatcher(object):
                 self.sslmode,
                 self.sslrootcert,
                 self.sslcert,
-                self.sslkey
+                self.sslkey,
             ),
             daemon=True,
         )
@@ -110,7 +117,7 @@ class PostgresqlWatcher(object):
         return p
 
     def set_update_callback(self, fn_name: Callable):
-        print("runtime is set update callback", fn_name)
+        self.logger.debug(f"runtime is set update callback {fn_name}")
         self.update_callback = fn_name
 
     def update(self):
@@ -138,10 +145,10 @@ class PostgresqlWatcher(object):
         try:
             if self.parent_conn.poll(None):
                 message = self.parent_conn.recv()
-                print(f"message:{message}")
+                self.logger.debug(f"message:{message}")
                 return True
         except EOFError:
-            print(
+            self.logger.warning(
                 "Child casbin-watcher subscribe process has stopped, "
                 "attempting to recreate the process in 10 seconds..."
             )
