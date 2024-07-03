@@ -33,7 +33,9 @@ jobs:
       - name: Setup PostgreSQL on macOS
         if: startsWith(runner.os, 'macos')
         run: |
-          brew services start postgresql
+          brew install postgresql@16
+          brew services start postgresql@16
+          export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
           echo "Check PostgreSQL service is running"
           i=10
           COMMAND='pg_isready'
