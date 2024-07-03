@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+# [1.1.0](https://github.com/pycasbin/postgresql-watcher/compare/v1.0.0...v1.1.0) (2024-07-03)
+
+
+### Features
+
+* replace print calls with logging module ([#25](https://github.com/pycasbin/postgresql-watcher/issues/25)) ([1196caf](https://github.com/pycasbin/postgresql-watcher/commit/1196caff8432d0c1ae8f8c1d306c0abcc66894f8))
+
 # [1.0.0](https://github.com/pycasbin/postgresql-watcher/compare/v0.3.0...v1.0.0) (2024-03-29)
 
 
