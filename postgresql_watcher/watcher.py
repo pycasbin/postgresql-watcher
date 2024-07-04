@@ -146,6 +146,7 @@ class PostgresqlWatcher(object):
             if self.parent_conn.poll(None):
                 message = self.parent_conn.recv()
                 self.logger.debug(f"message:{message}")
+                self.update_callback()
                 return True
         except EOFError:
             self.logger.warning(
