@@ -84,12 +84,12 @@ roles = enforcer.get_filtered_named_grouping_policy("g", 1, str(member_id))
 ```
 
 ### Reload Casbin enforcer
-In current setup enforcer does not automatically refresh in memory data, whenever required call
+In current setup enforcer does not automatically refresh in memory data, we can call watcher.should_reload() before every data access from enforcer.
 ```
 from setting import watcher 
 watcher.should_reload()
 ```
 If there are any changes in db this call will refresh in memory data from database
 
-For automatic reloading of data parent process need to poll child process for messages and call should_reload function if find any message in pipe between child and parent process
+For automatic reloading of data, parent process need to poll child process for messages and call should_reload function if there is any message in pipe between child and parent process
 
