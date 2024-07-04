@@ -143,7 +143,7 @@ class PostgresqlWatcher(object):
 
     def should_reload(self):
         try:
-            if self.parent_conn.poll(None):
+            if self.parent_conn.poll():
                 message = self.parent_conn.recv()
                 self.logger.debug(f"message:{message}")
                 if self.update_callback:
