@@ -45,10 +45,11 @@ def casbin_channel_subscription(
     db_cursor = db_connection.cursor()
     context_manager = _ConnectionManager(db_connection, db_cursor)
 
-    db_cursor.execute(f"LISTEN {channel_name};")
-    logger.debug("Waiting for casbin policy update")
-    process_conn.send(_ChannelSubscriptionMessage.IS_READY)
     with context_manager:
+        db_cursor.execute(f"LISTEN {channel_name};")
+        logger.debug("Waiting for casbin policy update")
+        process_conn.send(_ChannelSubscriptionMessage.IS_READY)
+
         while not db_cursor.closed:
             try:
                 if not select(
