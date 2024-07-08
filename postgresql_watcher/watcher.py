@@ -12,25 +12,14 @@ POSTGRESQL_CHANNEL_NAME = "casbin_role_watcher"
 
 class PostgresqlWatcher(object):
 
-    @staticmethod
-    def set_channel_name(channel_name: str) -> None:
-        """
-        Customize the Postgres channel name. This have to be done before initializing a PostgresqlWatcher object.
-
-        Args:
-            channel_name (str): New channel name
-        """
-        global POSTGRESQL_CHANNEL_NAME
-        POSTGRESQL_CHANNEL_NAME = channel_name
-
     def __init__(
         self,
         host: str,
         user: str,
         password: str,
-        port: Optional[int] = 5432,
-        dbname: Optional[str] = "postgres",
-        channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
+        port: int = 5432,
+        dbname: str = "postgres",
+        channel_name: Optional[str] = None,
         start_listening: bool = True,
         sslmode: Optional[str] = None,
         sslrootcert: Optional[str] = None,
@@ -45,9 +34,9 @@ class PostgresqlWatcher(object):
             host (str): Hostname of the PostgreSQL server.
             user (str): PostgreSQL username.
             password (str): Password for the user.
-            port (Optional[int], optional): Post of the PostgreSQL server. Defaults to 5432.
-            dbname (Optional[str], optional): Database name. Defaults to "postgres".
-            channel_name (Optional[str], optional): The name of the channel to listen to and to send updates to. Defaults to 'casbin_role_watcher'.
+            port (int): Post of the PostgreSQL server. Defaults to 5432.
+            dbname (str): Database name. Defaults to "postgres".
+            channel_name (str): The name of the channel to listen to and to send updates to. When None a default is used.
             start_listening (bool, optional): Flag whether to start listening to updates on the PostgreSQL channel. Defaults to True.
             sslmode (Optional[str], optional): See `psycopg2.connect` for details. Defaults to None.
             sslrootcert (Optional[str], optional): See `psycopg2.connect` for details. Defaults to None.
@@ -62,7 +51,7 @@ class PostgresqlWatcher(object):
         self.user = user
         self.password = password
         self.dbname = dbname
-        self.channel_name = channel_name
+        self.channel_name = channel_name if channel_name is not None else POSTGRESQL_CHANNEL_NAME
         self.sslmode = sslmode
         self.sslrootcert = sslrootcert
         self.sslcert = sslcert
