@@ -70,27 +70,21 @@ class PostgresqlWatcher(object):
         if logger is None:
             logger = getLogger()
         self.logger = logger
-        self.parent_conn: Connection = None
-        self.child_conn: Connection = None
-        self.subscription_process: Process = None
+        self.parent_conn: Connection | None = None
+        self.child_conn: Connection | None = None
+        self.subscription_process: Process | None = None
         self._create_subscription_process(start_listening)
         self.update_callback: Optional[Callable] = None
+
+    def __del__(self) -> None:
+        self._cleanup_connections_and_processes()
 
     def _create_subscription_process(
         self,
         start_listening=True,
         delay: Optional[int] = 2,
     ) -> None:
-        # Clean up potentially existing Connections and Processes
-        if self.parent_conn is not None:
-            self.parent_conn.close()
-            self.parent_conn = None
-        if self.child_conn is not None:
-            self.child_conn.close()
-            self.child_conn = None
-        if self.subscription_process is not None:
-            self.subscription_process.terminate()
-            self.subscription_process = None
+        self._cleanup_connections_and_processes()
 
         self.parent_conn, self.child_conn = Pipe()
         self.subscribed_process = Process(
@@ -114,6 +108,18 @@ class PostgresqlWatcher(object):
         )
         if start_listening:
             self.subscribed_process.start()
+
+    def _cleanup_connections_and_processes(self) -> None:
+        # Clean up potentially existing Connections and Processes
+        if self.parent_conn is not None:
+            self.parent_conn.close()
+            self.parent_conn = None
+        if self.child_conn is not None:
+            self.child_conn.close()
+            self.child_conn = None
+        if self.subscription_process is not None:
+            self.subscription_process.terminate()
+            self.subscription_process = None
 
     def set_update_callback(self, update_handler: Callable):
         """
