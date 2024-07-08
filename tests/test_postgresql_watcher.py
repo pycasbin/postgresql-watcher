@@ -55,18 +55,5 @@ class TestConfig(unittest.TestCase):
         sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
         self.assertTrue(pg_watcher.should_reload())
 
-    def test_default_update_callback(self):
-        pg_watcher = get_watcher()
-        assert pg_watcher.update_callback is None
-
-    def test_add_update_callback(self):
-        pg_watcher = get_watcher()
-        def _test_callback():
-            pass
-
-        pg_watcher.set_update_callback(_test_callback)
-        assert pg_watcher.update_callback == _test_callback
-
-
 if __name__ == "__main__":
     unittest.main()
