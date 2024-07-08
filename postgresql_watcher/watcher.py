@@ -57,6 +57,7 @@ class PostgresqlWatcher(object):
         self.child_conn: Connection = None
         self.subscription_process: Process = None
         self._create_subscription_process(start_process)
+        self.update_callback: Optional[Callable] = None
 
     def _create_subscription_process(
         self,
@@ -97,15 +98,18 @@ class PostgresqlWatcher(object):
         if start_process:
             self.subscribed_process.start()
 
-    def set_update_callback(self, fn_name: Callable):
-        self.logger.debug(f"runtime is set update callback {fn_name}")
-        self.update_callback = fn_name
+    def set_update_callback(self, update_handler: Callable):
+        """
+        Set the handler called, when the Watcher detects an update.
+        Recommendation: `casbin_enforcer.adapter.load_policy`
+        """
+        self.update_callback = update_handler
 
     def update(self) -> None:
         """
         Called by `casbin.Enforcer` when an update to the model was made.
         Informs other watchers via the PostgreSQL channel.
-        """        
+        """
         conn = connect(
             host=self.host,
             port=self.port,
