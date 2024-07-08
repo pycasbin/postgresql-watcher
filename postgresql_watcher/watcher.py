@@ -35,7 +35,7 @@ def casbin_subscription(
         sslmode=sslmode,
         sslrootcert=sslrootcert,
         sslcert=sslcert,
-        sslkey=sslkey
+        sslkey=sslkey,
     )
     # Can only receive notifications when not in transaction, set this for easier usage
     conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -130,7 +130,7 @@ class PostgresqlWatcher(object):
             sslmode=self.sslmode,
             sslrootcert=self.sslrootcert,
             sslcert=self.sslcert,
-            sslkey=self.sslkey
+            sslkey=self.sslkey,
         )
         # Can only receive notifications when not in transaction, set this for easier usage
         conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)

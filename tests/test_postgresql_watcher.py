@@ -14,7 +14,9 @@ DBNAME = "postgres"
 
 
 def get_watcher():
-    return PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD, dbname=DBNAME)
+    return PostgresqlWatcher(
+        host=HOST, port=PORT, user=USER, password=PASSWORD, dbname=DBNAME
+    )
 
 
 pg_watcher = get_watcher()
@@ -22,9 +24,9 @@ pg_watcher = get_watcher()
 try:
     import _winapi
     from _winapi import WAIT_OBJECT_0, WAIT_ABANDONED_0, WAIT_TIMEOUT, INFINITE
-except ImportError:
-    if sys.platform == 'win32':
-        raise
+except ImportError as e:
+    if sys.platform == "win32":
+        raise e
     _winapi = None
 
 
