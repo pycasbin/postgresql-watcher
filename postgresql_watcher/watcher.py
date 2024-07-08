@@ -84,20 +84,32 @@ class PostgresqlWatcher(object):
         if logger is None:
             logger = getLogger()
         self.logger = logger
-        self.subscribed_process = self.create_subscriber_process(start_process)
+        self.parent_conn: Connection = None
+        self.child_conn: Connection = None
+        self.subscription_process: Process = None
+        self.create_subscription_process(start_process)
 
-    def create_subscriber_process(
+    def create_subscription_process(
         self,
         start_process: Optional[bool] = True,
         delay: Optional[int] = 2,
-    ):
-        parent_conn, child_conn = Pipe()
-        if not self.parent_conn:
-            self.parent_conn = parent_conn
-        p = Process(
+    ) -> None:
+        # Clean up potentially existing Connections and Processes
+        if self.parent_conn is not None:
+            self.parent_conn.close()
+            self.parent_conn = None
+        if self.child_conn is not None:
+            self.child_conn.close()
+            self.child_conn = None
+        if self.subscription_process is not None:
+            self.subscription_process.terminate()
+            self.subscription_process = None
+
+        self.parent_conn, self.child_conn = Pipe()
+        self.subscribed_process = Process(
             target=casbin_subscription,
             args=(
-                child_conn,
+                self.child_conn,
                 self.logger,
                 self.host,
                 self.user,
@@ -114,8 +126,7 @@ class PostgresqlWatcher(object):
             daemon=True,
         )
         if start_process:
-            p.start()
-        return p
+            self.subscribed_process.start()
 
     def set_update_callback(self, fn_name: Callable):
         self.logger.debug(f"runtime is set update callback {fn_name}")
