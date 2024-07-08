@@ -37,7 +37,24 @@ class PostgresqlWatcher(object):
         sslcert: Optional[str] = None,
         sslkey: Optional[str] = None,
         logger: Optional[Logger] = None,
-    ):
+    ) -> None:
+        """
+        Initialize a PostgresqlWatcher object.
+
+        Args:
+            host (str): Hostname of the PostgreSQL server.
+            user (str): PostgreSQL username.
+            password (str): Password for the user.
+            port (Optional[int], optional): Post of the PostgreSQL server. Defaults to 5432.
+            dbname (Optional[str], optional): Database name. Defaults to "postgres".
+            channel_name (Optional[str], optional): The name of the channel to listen to and to send updates to. Defaults to 'casbin_role_watcher'.
+            start_listening (bool, optional): Flag whether to start listening to updates on the PostgreSQL channel. Defaults to True.
+            sslmode (Optional[str], optional): See `psycopg2.connect` for details. Defaults to None.
+            sslrootcert (Optional[str], optional): See `psycopg2.connect` for details. Defaults to None.
+            sslcert (Optional[str], optional): See `psycopg2.connect` for details. Defaults to None.
+            sslkey (Optional[str], optional): See `psycopg2.connect` for details. Defaults to None.
+            logger (Optional[Logger], optional): Custom logger to use. Defaults to None.
+        """
         self.update_callback = None
         self.parent_conn = None
         self.host = host
