@@ -54,6 +54,18 @@ def casbin_subscription(
 
 
 class PostgresqlWatcher(object):
+
+    @staticmethod
+    def set_channel_name(channel_name: str) -> None:
+        """
+        Customize the Postgres channel name. This have to be done before initializing a PostgresqlWatcher object.
+
+        Args:
+            channel_name (str): New channel name
+        """
+        global POSTGRESQL_CHANNEL_NAME
+        POSTGRESQL_CHANNEL_NAME = channel_name
+
     def __init__(
         self,
         host: str,
@@ -165,5 +177,5 @@ class PostgresqlWatcher(object):
                 "attempting to recreate the process in 10 seconds..."
             )
             self.create_subscription_process(delay=10)
-        
+
         return False
