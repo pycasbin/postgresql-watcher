@@ -69,7 +69,7 @@ class PostgresqlWatcher(object):
         self.child_conn: Connection | None = None
         self.subscription_process: Process | None = None
         self._create_subscription_process(start_listening)
-        self.update_callback: Optional[Callable] = None
+        self.update_callback: Optional[Callable[[None], None]] = None
 
     def __del__(self) -> None:
         self._cleanup_connections_and_processes()
@@ -129,7 +129,7 @@ class PostgresqlWatcher(object):
             self.subscription_process.terminate()
             self.subscription_process = None
 
-    def set_update_callback(self, update_handler: Callable):
+    def set_update_callback(self, update_handler: Optional[Callable[[None], None]]):
         """
         Set the handler called, when the Watcher detects an update.
         Recommendation: `casbin_enforcer.adapter.load_policy`
@@ -164,7 +164,10 @@ class PostgresqlWatcher(object):
         try:
             if self.parent_conn.poll():
                 message = int(self.parent_conn.recv())
-                return message == _ChannelSubscriptionMessage.RECEIVED_UPDATE
+                received_update = message == _ChannelSubscriptionMessage.RECEIVED_UPDATE
+                if received_update and self.update_callback is not None:
+                    self.update_callback()
+                return received_update
         except EOFError:
             self.logger.warning(
                 "Child casbin-watcher subscribe process has stopped, "

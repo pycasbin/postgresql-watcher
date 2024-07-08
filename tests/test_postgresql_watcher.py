@@ -1,5 +1,6 @@
 import sys
 import unittest
+from unittest.mock import MagicMock
 from multiprocessing.connection import Pipe
 from time import sleep
 import logging
@@ -80,6 +81,26 @@ class TestConfig(unittest.TestCase):
         sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
         for watcher in other_watchers:
             self.assertFalse(watcher.should_reload())
+        self.assertFalse(main_watcher.should_reload())
+
+    def test_update_handler_called(self):
+        channel_name = "test_update_handler_called"
+        main_watcher = get_watcher(channel_name)
+        handler = MagicMock()
+        main_watcher.set_update_callback(handler)
+        main_watcher.update()
+        sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
+        self.assertTrue(main_watcher.should_reload())
+        self.assertTrue(handler.call_count == 1)
+
+    def test_update_handler_not_called(self):
+        channel_name = "test_update_handler_not_called"
+        main_watcher = get_watcher(channel_name)
+        handler = MagicMock()
+        main_watcher.set_update_callback(handler)
+        sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
+        self.assertFalse(main_watcher.should_reload())
+        self.assertTrue(handler.call_count == 0)
 
 
 if __name__ == "__main__":
