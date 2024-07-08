@@ -142,7 +142,7 @@ class PostgresqlWatcher(object):
         conn.close()
         return True
 
-    def should_reload(self):
+    def should_reload(self) -> bool:
         try:
             if self.parent_conn.poll(None):
                 message = self.parent_conn.recv()
@@ -153,7 +153,6 @@ class PostgresqlWatcher(object):
                 "Child casbin-watcher subscribe process has stopped, "
                 "attempting to recreate the process in 10 seconds..."
             )
-            self.subscribed_process, self.parent_conn = self.create_subscriber_process(
-                delay=10
-            )
-            return False
+            self.create_subscription_process(delay=10)
+        
+        return False
