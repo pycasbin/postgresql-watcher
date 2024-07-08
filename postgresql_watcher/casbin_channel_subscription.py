@@ -1,3 +1,4 @@
+from enum import IntEnum
 from logging import Logger
 from multiprocessing.connection import Connection
 from select import select
@@ -8,7 +9,7 @@ from typing import Optional
 from psycopg2 import connect, extensions, InterfaceError
 
 
-CASBIN_CHANNEL_SELECT_TIMEOUT = 1 # seconds
+CASBIN_CHANNEL_SELECT_TIMEOUT = 1  # seconds
 
 
 def casbin_channel_subscription(
@@ -43,24 +44,33 @@ def casbin_channel_subscription(
     db_connection.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
     db_cursor = db_connection.cursor()
     context_manager = _ConnectionManager(db_connection, db_cursor)
-    
+
     db_cursor.execute(f"LISTEN {channel_name};")
     logger.debug("Waiting for casbin policy update")
+    process_conn.send(_ChannelSubscriptionMessage.IS_READY)
     with context_manager:
         while not db_cursor.closed:
             try:
-                if not select([db_connection], [], [], CASBIN_CHANNEL_SELECT_TIMEOUT) == ([], [], []):
+                if not select(
+                    [db_connection], [], [], CASBIN_CHANNEL_SELECT_TIMEOUT
+                ) == ([], [], []):
                     logger.debug("Casbin policy update identified..")
                     db_connection.poll()
                     while db_connection.notifies:
                         notify = db_connection.notifies.pop(0)
                         logger.debug(f"Notify: {notify.payload}")
-                        process_conn.send(notify.payload)
+                        process_conn.send(_ChannelSubscriptionMessage.RECEIVED_UPDATE)
             except (InterfaceError, OSError) as e:
                 # Log an exception if these errors occurred without the context beeing closed
                 if not context_manager.connections_were_closed:
                     logger.critical(e, exc_info=True)
                 break
+
+
+class _ChannelSubscriptionMessage(IntEnum):
+    IS_READY = 1
+    RECEIVED_UPDATE = 2
+
 
 class _ConnectionManager:
     """
@@ -79,7 +89,7 @@ class _ConnectionManager:
         signal(SIGINT, self._close_connections)
         signal(SIGTERM, self._close_connections)
         return self
-    
+
     def _close_connections(self, *_):
         if self.cursor is not None:
             self.cursor.close()

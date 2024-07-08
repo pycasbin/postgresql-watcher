@@ -20,6 +20,7 @@ logger.level = logging.DEBUG
 stream_handler = logging.StreamHandler(sys.stdout)
 logger.addHandler(stream_handler)
 
+
 def get_watcher():
     return PostgresqlWatcher(
         host=HOST,
@@ -29,6 +30,7 @@ def get_watcher():
         dbname=DBNAME,
         logger=logger,
     )
+
 
 try:
     import _winapi
@@ -50,10 +52,10 @@ class TestConfig(unittest.TestCase):
 
     def test_update_pg_watcher(self):
         pg_watcher = get_watcher()
-        sleep(5) # Wait for casbin_channel_subscription initialization
         pg_watcher.update()
         sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
         self.assertTrue(pg_watcher.should_reload())
+
 
 if __name__ == "__main__":
     unittest.main()

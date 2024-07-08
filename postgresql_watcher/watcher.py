@@ -5,10 +5,14 @@ from multiprocessing.connection import Connection
 import time
 from select import select
 from logging import Logger, getLogger
-from .casbin_channel_subscription import casbin_channel_subscription
+from .casbin_channel_subscription import (
+    casbin_channel_subscription,
+    _ChannelSubscriptionMessage,
+)
 
 
 POSTGRESQL_CHANNEL_NAME = "casbin_role_watcher"
+
 
 class PostgresqlWatcher(object):
 
@@ -51,7 +55,9 @@ class PostgresqlWatcher(object):
         self.user = user
         self.password = password
         self.dbname = dbname
-        self.channel_name = channel_name if channel_name is not None else POSTGRESQL_CHANNEL_NAME
+        self.channel_name = (
+            channel_name if channel_name is not None else POSTGRESQL_CHANNEL_NAME
+        )
         self.sslmode = sslmode
         self.sslrootcert = sslrootcert
         self.sslcert = sslcert
@@ -95,9 +101,21 @@ class PostgresqlWatcher(object):
             ),
             daemon=True,
         )
-
         if start_listening:
+            self.start()
+
+    def start(self):
+        if not self.subscription_proces.is_alive():
+            # Start listening to messages
             self.subscription_proces.start()
+            # And wait for the Process to be ready to listen for updates
+            # from PostgreSQL
+            while True:
+                if self.parent_conn.poll():
+                    message = int(self.parent_conn.recv())
+                    if message == _ChannelSubscriptionMessage.IS_READY:
+                        break
+                time.sleep(1 / 1000)  # wait for 1 ms
 
     def _cleanup_connections_and_processes(self) -> None:
         # Clean up potentially existing Connections and Processes
@@ -145,9 +163,8 @@ class PostgresqlWatcher(object):
     def should_reload(self) -> bool:
         try:
             if self.parent_conn.poll():
-                message = self.parent_conn.recv()
-                self.logger.debug(f"message:{message}")
-                return True
+                message = int(self.parent_conn.recv())
+                return message == _ChannelSubscriptionMessage.RECEIVED_UPDATE
         except EOFError:
             self.logger.warning(
                 "Child casbin-watcher subscribe process has stopped, "
