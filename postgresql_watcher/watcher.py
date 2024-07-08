@@ -77,7 +77,7 @@ class PostgresqlWatcher(object):
         self._cleanup_connections_and_processes()
 
         self.parent_conn, self.child_conn = Pipe()
-        self.subscribed_process = Process(
+        self.subscription_proces = Process(
             target=_casbin_channel_subscription,
             args=(
                 self.child_conn,
@@ -97,7 +97,7 @@ class PostgresqlWatcher(object):
             daemon=True,
         )
         if start_listening:
-            self.subscribed_process.start()
+            self.subscription_proces.start()
 
     def _cleanup_connections_and_processes(self) -> None:
         # Clean up potentially existing Connections and Processes
