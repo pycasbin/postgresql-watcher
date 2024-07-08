@@ -50,11 +50,20 @@ class TestConfig(unittest.TestCase):
             assert isinstance(pg_watcher.parent_conn, connection.Connection)
         assert isinstance(pg_watcher.subscription_proces, context.Process)
 
-    def test_update_pg_watcher(self):
+    def test_update_single_pg_watcher(self):
         pg_watcher = get_watcher()
         pg_watcher.update()
         sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
         self.assertTrue(pg_watcher.should_reload())
+
+    def test_update_mutiple_pg_watcher(self):
+        main_watcher = get_watcher()
+
+        other_watchers = [get_watcher() for _ in range(5)]
+        main_watcher.update()
+        sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
+        for watcher in other_watchers:
+            self.assertTrue(watcher.should_reload())
 
 
 if __name__ == "__main__":
