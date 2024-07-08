@@ -1,13 +1,13 @@
-import sys
-import unittest
-from unittest.mock import MagicMock
-from multiprocessing.connection import Pipe
+from logging import DEBUG, getLogger, StreamHandler
+from multiprocessing import connection, context
 from time import sleep
-import logging
+from unittest import TestCase, main
+from unittest.mock import MagicMock
+import sys
 
 from postgresql_watcher import PostgresqlWatcher
 from postgresql_watcher.casbin_channel_subscription import CASBIN_CHANNEL_SELECT_TIMEOUT
-from multiprocessing import connection, context
+
 
 # Warning!!! , Please setup yourself config
 HOST = "127.0.0.1"
@@ -16,9 +16,9 @@ USER = "postgres"
 PASSWORD = "123456"
 DBNAME = "postgres"
 
-logger = logging.getLogger()
-logger.level = logging.DEBUG
-stream_handler = logging.StreamHandler(sys.stdout)
+logger = getLogger()
+logger.level = DEBUG
+stream_handler = StreamHandler(sys.stdout)
 logger.addHandler(stream_handler)
 
 
@@ -43,7 +43,7 @@ except ImportError as e:
     _winapi = None
 
 
-class TestConfig(unittest.TestCase):
+class TestConfig(TestCase):
     def test_pg_watcher_init(self):
         pg_watcher = get_watcher("test_pg_watcher_init")
         if _winapi:
@@ -104,4 +104,4 @@ class TestConfig(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    main()

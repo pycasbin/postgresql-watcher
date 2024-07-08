@@ -1,10 +1,11 @@
-from typing import Optional, Callable
-from psycopg2 import connect, extensions
+from logging import Logger, getLogger
 from multiprocessing import Process, Pipe
 from multiprocessing.connection import Connection
-import time
-from select import select
-from logging import Logger, getLogger
+from time import sleep, time
+from typing import Optional, Callable
+
+from psycopg2 import connect, extensions
+
 from .casbin_channel_subscription import (
     casbin_channel_subscription,
     _ChannelSubscriptionMessage,
@@ -115,7 +116,7 @@ class PostgresqlWatcher(object):
                     message = int(self.parent_conn.recv())
                     if message == _ChannelSubscriptionMessage.IS_READY:
                         break
-                time.sleep(1 / 1000)  # wait for 1 ms
+                sleep(1 / 1000)  # wait for 1 ms
 
     def _cleanup_connections_and_processes(self) -> None:
         # Clean up potentially existing Connections and Processes
@@ -155,9 +156,7 @@ class PostgresqlWatcher(object):
         # Can only receive notifications when not in transaction, set this for easier usage
         conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         curs = conn.cursor()
-        curs.execute(
-            f"NOTIFY {self.channel_name},'casbin policy update at {time.time()}'"
-        )
+        curs.execute(f"NOTIFY {self.channel_name},'casbin policy update at {time()}'")
         conn.close()
 
     def should_reload(self) -> bool:
