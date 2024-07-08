@@ -57,6 +57,11 @@ class TestConfig(unittest.TestCase):
         sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
         self.assertTrue(pg_watcher.should_reload())
 
+    def test_no_update_single_pg_watcher(self):
+        pg_watcher = get_watcher("test_no_update_single_pg_watcher")
+        sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
+        self.assertFalse(pg_watcher.should_reload())
+
     def test_update_mutiple_pg_watcher(self):
         channel_name = "test_update_mutiple_pg_watcher"
         main_watcher = get_watcher(channel_name)
@@ -66,6 +71,15 @@ class TestConfig(unittest.TestCase):
         sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
         for watcher in other_watchers:
             self.assertTrue(watcher.should_reload())
+
+    def test_no_update_mutiple_pg_watcher(self):
+        channel_name = "test_no_update_mutiple_pg_watcher"
+        main_watcher = get_watcher(channel_name)
+
+        other_watchers = [get_watcher(channel_name) for _ in range(5)]
+        sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
+        for watcher in other_watchers:
+            self.assertFalse(watcher.should_reload())
 
 
 if __name__ == "__main__":
