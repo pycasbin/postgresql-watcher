@@ -21,7 +21,7 @@ stream_handler = logging.StreamHandler(sys.stdout)
 logger.addHandler(stream_handler)
 
 
-def get_watcher():
+def get_watcher(channel_name):
     return PostgresqlWatcher(
         host=HOST,
         port=PORT,
@@ -29,6 +29,7 @@ def get_watcher():
         password=PASSWORD,
         dbname=DBNAME,
         logger=logger,
+        channel_name=channel_name,
     )
 
 
@@ -43,7 +44,7 @@ except ImportError as e:
 
 class TestConfig(unittest.TestCase):
     def test_pg_watcher_init(self):
-        pg_watcher = get_watcher()
+        pg_watcher = get_watcher("test_pg_watcher_init")
         if _winapi:
             assert isinstance(pg_watcher.parent_conn, connection.PipeConnection)
         else:
@@ -51,15 +52,16 @@ class TestConfig(unittest.TestCase):
         assert isinstance(pg_watcher.subscription_proces, context.Process)
 
     def test_update_single_pg_watcher(self):
-        pg_watcher = get_watcher()
+        pg_watcher = get_watcher("test_update_single_pg_watcher")
         pg_watcher.update()
         sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
         self.assertTrue(pg_watcher.should_reload())
 
     def test_update_mutiple_pg_watcher(self):
-        main_watcher = get_watcher()
+        channel_name = "test_update_mutiple_pg_watcher"
+        main_watcher = get_watcher(channel_name)
 
-        other_watchers = [get_watcher() for _ in range(5)]
+        other_watchers = [get_watcher(channel_name) for _ in range(5)]
         main_watcher.update()
         sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * 2)
         for watcher in other_watchers:
