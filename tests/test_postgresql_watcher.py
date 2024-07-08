@@ -2,6 +2,7 @@ import sys
 import unittest
 from multiprocessing.connection import Pipe
 from time import sleep
+import logging
 
 from postgresql_watcher import PostgresqlWatcher
 from postgresql_watcher.watcher import CASBIN_CHANNEL_SELECT_TIMEOUT
@@ -14,10 +15,19 @@ USER = "postgres"
 PASSWORD = "123456"
 DBNAME = "postgres"
 
+logger = logging.getLogger()
+logger.level = logging.DEBUG
+stream_handler = logging.StreamHandler(sys.stdout)
+logger.addHandler(stream_handler)
 
 def get_watcher():
     return PostgresqlWatcher(
-        host=HOST, port=PORT, user=USER, password=PASSWORD, dbname=DBNAME
+        host=HOST,
+        port=PORT,
+        user=USER,
+        password=PASSWORD,
+        dbname=DBNAME,
+        logger=logger,
     )
 
 try:
