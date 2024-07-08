@@ -5,7 +5,7 @@ from time import sleep
 import logging
 
 from postgresql_watcher import PostgresqlWatcher
-from postgresql_watcher.watcher import CASBIN_CHANNEL_SELECT_TIMEOUT
+from postgresql_watcher.casbin_channel_subscription import CASBIN_CHANNEL_SELECT_TIMEOUT
 from multiprocessing import connection, context
 
 # Warning!!! , Please setup yourself config
