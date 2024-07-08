@@ -8,6 +8,7 @@ from logging import Logger, getLogger
 
 
 POSTGRESQL_CHANNEL_NAME = "casbin_role_watcher"
+CASBIN_CHANNEL_SELECT_TIMEOUT = 1 # seconds
 
 
 class PostgresqlWatcher(object):
@@ -140,11 +141,10 @@ class PostgresqlWatcher(object):
             f"NOTIFY {self.channel_name},'casbin policy update at {time.time()}'"
         )
         conn.close()
-        return True
 
     def should_reload(self) -> bool:
         try:
-            if self.parent_conn.poll(None):
+            if self.parent_conn.poll():
                 message = self.parent_conn.recv()
                 self.logger.debug(f"message:{message}")
                 return True
@@ -191,8 +191,8 @@ def _casbin_channel_subscription(
     curs = conn.cursor()
     curs.execute(f"LISTEN {channel_name};")
     logger.debug("Waiting for casbin policy update")
-    while True and not curs.closed:
-        if not select([conn], [], [], 5) == ([], [], []):
+    while not curs.closed:
+        if not select([conn], [], [], CASBIN_CHANNEL_SELECT_TIMEOUT) == ([], [], []):
             logger.debug("Casbin policy update identified..")
             conn.poll()
             while conn.notifies:
