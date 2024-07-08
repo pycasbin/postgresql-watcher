@@ -101,8 +101,11 @@ class PostgresqlWatcher(object):
         self.logger.debug(f"runtime is set update callback {fn_name}")
         self.update_callback = fn_name
 
-    def update(self):
-
+    def update(self) -> None:
+        """
+        Called by `casbin.Enforcer` when an update to the model was made.
+        Informs other watchers via the PostgreSQL channel.
+        """        
         conn = connect(
             host=self.host,
             port=self.port,
