@@ -1,6 +1,7 @@
 from typing import Optional, Callable
 from psycopg2 import connect, extensions
 from multiprocessing import Process, Pipe
+from multiprocessing.connection import Connection
 import time
 from select import select
 from logging import Logger, getLogger
@@ -10,7 +11,7 @@ POSTGRESQL_CHANNEL_NAME = "casbin_role_watcher"
 
 
 def casbin_subscription(
-    process_conn: Pipe,
+    process_conn: Connection,
     logger: Logger,
     host: str,
     user: str,
