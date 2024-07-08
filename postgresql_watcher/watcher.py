@@ -31,7 +31,7 @@ class PostgresqlWatcher(object):
         port: Optional[int] = 5432,
         dbname: Optional[str] = "postgres",
         channel_name: Optional[str] = POSTGRESQL_CHANNEL_NAME,
-        start_process: Optional[bool] = True,
+        start_listening: bool = True,
         sslmode: Optional[str] = None,
         sslrootcert: Optional[str] = None,
         sslcert: Optional[str] = None,
@@ -56,12 +56,12 @@ class PostgresqlWatcher(object):
         self.parent_conn: Connection = None
         self.child_conn: Connection = None
         self.subscription_process: Process = None
-        self._create_subscription_process(start_process)
+        self._create_subscription_process(start_listening)
         self.update_callback: Optional[Callable] = None
 
     def _create_subscription_process(
         self,
-        start_process: Optional[bool] = True,
+        start_listening=True,
         delay: Optional[int] = 2,
     ) -> None:
         # Clean up potentially existing Connections and Processes
@@ -95,7 +95,7 @@ class PostgresqlWatcher(object):
             ),
             daemon=True,
         )
-        if start_process:
+        if start_listening:
             self.subscribed_process.start()
 
     def set_update_callback(self, update_handler: Callable):
