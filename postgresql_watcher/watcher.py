@@ -105,13 +105,15 @@ class PostgresqlWatcher(object):
         if start_listening:
             self.start()
 
-    def start(self):
+    def start(
+        self,
+        timeout=20, # seconds
+    ):
         if not self.subscription_proces.is_alive():
             # Start listening to messages
             self.subscription_proces.start()
             # And wait for the Process to be ready to listen for updates
             # from PostgreSQL
-            timeout = 20  # seconds
             timeout_time = time() + timeout
             while True:
                 if self.parent_conn.poll():
