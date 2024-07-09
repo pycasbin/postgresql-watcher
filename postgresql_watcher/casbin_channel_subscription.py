@@ -52,10 +52,14 @@ def casbin_channel_subscription(
 
         while not db_cursor.closed:
             try:
-                if not select(
-                    [db_connection], [], [], CASBIN_CHANNEL_SELECT_TIMEOUT
-                ) == ([], [], []):
-                    logger.debug("Casbin policy update identified..")
+                select_result = select(
+                    [db_connection],
+                    [],
+                    [],
+                    CASBIN_CHANNEL_SELECT_TIMEOUT,
+                )
+                if select_result != ([], [], []):
+                    logger.debug("Casbin policy update identified")
                     db_connection.poll()
                     while db_connection.notifies:
                         notify = db_connection.notifies.pop(0)
