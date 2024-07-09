@@ -47,7 +47,7 @@ casbin_enforcer.set_watcher(watcher)
 ```
 
 
-## Django setup with casbin django orm adaptor
+## Django setup with casbin django orm adapter
 
 Enforcer and Watcher setup
 ```
