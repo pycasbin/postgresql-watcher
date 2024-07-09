@@ -1,1 +1,1 @@
-from .watcher import PostgresqlWatcher
+from .watcher import PostgresqlWatcher, PostgresqlWatcherChannelSubscriptionTimeoutError

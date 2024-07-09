@@ -111,11 +111,15 @@ class PostgresqlWatcher(object):
             self.subscription_proces.start()
             # And wait for the Process to be ready to listen for updates
             # from PostgreSQL
+            timeout = 20  # seconds
+            timeout_time = time() + timeout
             while True:
                 if self.parent_conn.poll():
                     message = int(self.parent_conn.recv())
                     if message == _ChannelSubscriptionMessage.IS_READY:
                         break
+                if time() > timeout_time:
+                    raise PostgresqlWatcherChannelSubscriptionTimeoutError(timeout)
                 sleep(1 / 1000)  # wait for 1 ms
 
     def _cleanup_connections_and_processes(self) -> None:
@@ -175,3 +179,13 @@ class PostgresqlWatcher(object):
             self._create_subscription_process(delay=10)
 
         return False
+
+
+class PostgresqlWatcherChannelSubscriptionTimeoutError(RuntimeError):
+    """
+    Raised if the channel subscription could not be established within a given timeout.
+    """
+
+    def __init__(self, timeout_in_seconds: float) -> None:
+        msg = f"The channel subscription could not be established within {timeout_in_seconds:.0f} seconds."
+        super().__init__(msg)
