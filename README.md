@@ -25,7 +25,7 @@ from casbin.persist.adapters import FileAdapter
 
 casbin_enforcer = CasbinEnforcer(app, adapter)
 watcher = PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD, dbname=DBNAME)
-watcher.set_update_callback(casbin_enforcer.adapter.load_policy)
+watcher.set_update_callback(casbin_enforcer.load_policy)
 casbin_enforcer.set_watcher(watcher)
 
 # Call should_reload before every call of enforce to make sure
@@ -54,7 +54,7 @@ casbin_enforcer.set_watcher(watcher)
 # Call should_reload before every call of enforce to make sure
 # the policy is update to date
 if watcher.should_reload():
-    adapter.load_policy()
+    casbin_enforcer.load_policy()
 
 if casbin_enforcer.enforce("alice", "data1", "read"):
     # permit alice to read data1
