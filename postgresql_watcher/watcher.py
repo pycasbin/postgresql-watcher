@@ -66,9 +66,9 @@ class PostgresqlWatcher(object):
         if logger is None:
             logger = getLogger()
         self.logger = logger
-        self.parent_conn: Connection | None = None
-        self.child_conn: Connection | None = None
-        self.subscription_process: Process | None = None
+        self.parent_conn: Optional[Connection] = None
+        self.child_conn: Optional[Connection] = None
+        self.subscription_process: Optional[Process] = None
         self._create_subscription_process(start_listening)
         self.update_callback: Optional[Callable[[None], None]] = None
 
