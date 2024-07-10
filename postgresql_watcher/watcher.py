@@ -167,12 +167,17 @@ class PostgresqlWatcher(object):
 
     def should_reload(self) -> bool:
         try:
-            if self.parent_conn.poll():
+            should_reload_flag = False
+            while self.parent_conn.poll():
                 message = int(self.parent_conn.recv())
                 received_update = message == _ChannelSubscriptionMessage.RECEIVED_UPDATE
-                if received_update and self.update_callback is not None:
-                    self.update_callback()
-                return received_update
+                if received_update:
+                    should_reload_flag = True
+
+            if should_reload_flag and self.update_callback is not None:
+                self.update_callback()
+
+            return should_reload_flag
         except EOFError:
             self.logger.warning(
                 "Child casbin-watcher subscribe process has stopped, "

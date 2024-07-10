@@ -93,6 +93,19 @@ class TestConfig(TestCase):
         self.assertTrue(main_watcher.should_reload())
         self.assertTrue(handler.call_count == 1)
 
+    def test_update_handler_called_multiple_channel_messages(self):
+        channel_name = "test_update_handler_called_multiple_channel_messages"
+        main_watcher = get_watcher(channel_name)
+        handler = MagicMock()
+        main_watcher.set_update_callback(handler)
+        number_of_updates = 5
+        for _ in range(number_of_updates):
+            main_watcher.update()
+        sleep(CASBIN_CHANNEL_SELECT_TIMEOUT * (number_of_updates + 1))
+        while main_watcher.should_reload():
+            pass
+        self.assertTrue(handler.call_count == 1)
+
     def test_update_handler_not_called(self):
         channel_name = "test_update_handler_not_called"
         main_watcher = get_watcher(channel_name)
