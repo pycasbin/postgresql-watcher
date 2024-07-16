@@ -1,5 +1,12 @@
 # Semantic Versioning Changelog
 
+## [1.1.1](https://github.com/pycasbin/postgresql-watcher/compare/v1.1.0...v1.1.1) (2024-07-16)
+
+
+### Bug Fixes
+
+* fixed `should_reload` behaviour, close PostgreSQL connections, block until `PostgresqlWatcher` is ready, refactorings ([#29](https://github.com/pycasbin/postgresql-watcher/issues/29)) ([8382db4](https://github.com/pycasbin/postgresql-watcher/commit/8382db4d25825c4d2637dfd68a468dfc4828ae35))
+
 # [1.1.0](https://github.com/pycasbin/postgresql-watcher/compare/v1.0.0...v1.1.0) (2024-07-03)
 
 
