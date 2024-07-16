@@ -14,10 +14,10 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/pycasbin/postgresql-watcher",
     packages=find_packages(),
-    install_requires=open('requirements.txt').read().splitlines(),
+    install_requires=open("requirements.txt").read().splitlines(),
     extras_require={
-        'dev': [
-            open('dev_requirements.txt').read().splitlines(),
+        "dev": [
+            open("dev_requirements.txt").read().splitlines(),
         ]
     },
     classifiers=[
