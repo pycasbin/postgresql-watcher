@@ -73,3 +73,50 @@ See [PostgresQL documentation](https://www.postgresql.org/docs/current/libpq-con
 watcher = PostgresqlWatcher(host=HOST, port=PORT, user=USER, password=PASSWORD, dbname=DBNAME, sslmode="verify_full", sslcert=SSLCERT, sslrootcert=SSLROOTCERT, sslkey=SSLKEY)
 ...
 ```
+
+
+## Django setup with casbin django orm adapter
+
+Enforcer and Watcher setup
+```
+# settings.py
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+INSTALLED_APPS += [
+    'casbin_adapter.apps.CasbinAdapterConfig',
+]
+
+CASBIN_MODEL = os.path.join(BASE_DIR, 'casbin.conf')
+
+from postgresql_watcher.watcher import PostgresqlWatcher
+from casbin_adapter.enforcer import enforcer
+
+watcher = PostgresqlWatcher(host=BANK_CONNECT_APIS_PG_HOST_URL, port=BANK_CONNECT_APIS_PG_PORT,
+            user=BANK_CONNECT_APIS_PG_USER, password=BANK_CONNECT_APIS_PG_PASSWORD, dbname=BANK_CONNECT_APIS_PG_DBNAME)
+
+def update_enforcer():
+    print("before loading policy", enforcer)
+    enforcer.load_policy()
+
+watcher.set_update_callback(update_enforcer)
+CASBIN_WATCHER = watcher
+```
+
+Usage of enforcer
+
+```
+#views.py or any other file
+from casbin_adapter.enforcer import enforcer
+
+roles = enforcer.get_filtered_named_grouping_policy("g", 1, str(member_id))
+```
+
+### Reload Casbin enforcer
+In current setup enforcer does not automatically refresh in memory data, we can call watcher.should_reload() before every data access from enforcer.
+```
+from setting import watcher 
+watcher.should_reload()
+```
+If there are any changes in db this call will refresh in memory data from database
+
+For automatic reloading of data, parent process need to poll child process for messages and call should_reload function if there is any message in pipe between child and parent process
